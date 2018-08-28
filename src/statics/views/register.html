@@ -50,10 +50,14 @@
             url: '/account/regist',
             data: {
                 username: $('#usernameId').val(),
-                password: md5($('#passwordId').val())
+                password: md5($('#passwordId').val()+'xdbdd')
             },
             success: function (res) {
-                console.log(res);
+                if (res.status != 0) {
+                    alert(res.message);
+                } else {
+                    location.href = '/account/login.html';
+                }
             }
         })
     }

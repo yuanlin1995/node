@@ -13,4 +13,10 @@ router.get('/login.html', accountController.login);
 //导入注册控制器
 router.get('/register.html', accountController.register);
 
+router.post('/regist', accountController.doRegist);
+
+router.post('/login', accountController.doLogin);
+
+router.get('/vCode', accountController.getvCode);
+
 module.exports = router;
