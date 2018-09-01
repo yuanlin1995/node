@@ -19,4 +19,6 @@ router.post('/login', accountController.doLogin);
 
 router.get('/vCode', accountController.getvCode);
 
+router.get('/logout', accountController.doLogout);
+
 module.exports = router;

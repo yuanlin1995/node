@@ -1,12 +1,56 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-</head>
-<body>
-    hhhh    
-</body>
-</html>
+ {{extend ("./parent.html")}} {{#block ("content")}}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <ol class="breadcrumb">
+            <li>
+                <a href="#">首页</a>
+            </li>
+            <li>
+                <a href="#">学生管理</a>
+            </li>
+            <li class="active">学生列表</li>
+        </ol>
+    </div>
+    <div class="panel-heading">
+        <div class="input-group">
+            <span class="input-group-addon" id="basic-addon1">学生姓名</span>
+            <input type="text" class="form-control" id="studentNameId" placeholder="请输入学生姓名进行查询" aria-describedby="basic-addon1" style="width:200px;margin-right:10px;"
+                value="{{keyword}}">
+            <input type="button" class="btn btn-success" onclick="search()" value="查找" style="margin-right:10px;">
+            <input type="button" class="btn btn-success" value="新增" onclick="window.location='/student/add.html'">
+        </div>
+    </div>
+    <div class="panel-body">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>姓名</th>
+                    <th>年龄</th>
+                    <th>性别</th>
+                    <th>手机号码</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each(students)}}
+                <tr>
+                    <td>{{this.name}}</td>
+                    <td>{{this.age}}</td>
+                    <td>{{this.sex}}</td>
+                    <td>{{this.phone}}</td>
+                    <td>
+                        <a href="/student/edit.html/{{this._id}}" class="btn btn-success">编辑</a> |
+                        <a href="/student/delete/{{this._id}}" class="btn btn-danger">删除</a>
+                    </td>
+                </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    function search() {
+        location.href = '/student/list.html?keyword=' + $('#studentNameId').val();
+    }
+</script>
+{{/block}}

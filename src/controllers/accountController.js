@@ -1,7 +1,6 @@
 const path = require('path');
-const MongoClient = require('mongodb').MongoClient;
 const captchapng = require('captchapng');
-
+const databasetool = require(path.join(__dirname, '../tools/databasetool'));
 exports.login = (req, res) => {
     res.sendFile(path.join(__dirname, '../statics/views/login.html'));
 }
@@ -12,47 +11,29 @@ exports.register = (req, res) => {
 
 //注册账号
 exports.doRegist = (req, res) => {
-    // 连接 URL
-    const url = 'mongodb://localhost:27017';
-    // 数据库名
-    const dbName = 'xiaodiao';
-    // Use connect method to connect to the server
-    MongoClient.connect(
-        url, {
-            useNewUrlParser: true
-        },
-        function (err, client) {
-            //获取db对象
-            const db = client.db(dbName);
-            // 获得集合
-            const collection = db.collection('accountInfo');
-            // 查询单个文件
-            collection.findOne({
-                username: req.body.username
-            }, (err, doc) => {
-                const result = {
-                    status: 0,
-                    message: '注册成功'
-                };
-                if (doc) {
-                    client.close();
-                    result.status = 1;
-                    result.message = '用户名已存在';
-                    res.json(result);
+    const result = {
+        status: 0,
+        message: '注册成功'
+    };
+    databasetool.findOne('accountInfo', {
+        username: req.body.username
+    }, (err, doc) => {
+        if (doc) {
+            result.status = 1;
+            result.message = '用户名已存在';
+            res.json(result);
+        } else {
+            databasetool.insertOne('accountInfo', req.body, (err, res2) => {
+                console.log(err, res2);
+                if (err) {
+                    result.status = 2;
+                    result.message = '注册失败';
                 } else {
-                    collection.insertOne(req.body, (err, res2) => {
-                        client.close();
-                        if (err) {
-                            result.status = 2;
-                            result.message = '注册失败';
-                        }
-                        res.send(result);
-                    });
+                    res.send(result);
                 }
             });
-            //****关闭数据库需要写在异步内****
-            // client.close();
-        });
+        }
+    });
 }
 
 //获取验证码
@@ -75,7 +56,6 @@ exports.getvCode = (req, res) => {
 };
 
 //登录
-
 exports.doLogin = (req, res) => {
     const result = {
         status: 0,
@@ -87,36 +67,24 @@ exports.doLogin = (req, res) => {
         res.send(result);
         return;
     } else {
-        // Connection URL
-        const url = 'mongodb://localhost:27017';
-        // 数据库名
-        const dbName = 'xiaodiao';
-        // Use connect method to connect to the server
-        MongoClient.connect(
-            url, {
-                useNewUrlParser: true
-            },
-            function (err, client) {
-                //获取db对象
-                const db = client.db(dbName);
-                // 获得集合
-                const collection = db.collection('accountInfo');
-                // 查询单个文件
-                collection.findOne({
-                    username: req.body.username,
-                    password: req.body.password
-                }, (err, doc) => {
-                    if (doc) {
-                        client.close();
-                        res.send(result);
-                    } else {
-                        result.status = 1;
-                        result.message = '用户名或密码错误';
-                        res.send(result);
-                    }
-                });
-                //****关闭数据库需要写在异步内****
-                // client.close();
-            });
+        databasetool.findOne('accountInfo', { 
+            username: req.body.username,
+            password: req.body.password
+        }, (err, doc) => {
+            if (doc) {
+                req.session.isLogin = req.body.username;
+                res.send(result);
+            } else {
+                result.status = 1;
+                result.message = '用户名或密码错误';
+                res.send(result);
+            }
+        });
     }
 }
+
+//登出
+exports.doLogout = (req, res) => {
+    req.session.isLogin = null;
+    res.send('<script>location.href="/account/login.html"</script>');
+};

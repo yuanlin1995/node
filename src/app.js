@@ -17,6 +17,20 @@ app.use(session({
     }
 }));
 
+// 路径判断 防止敏感页面未登录也能访问
+app.all('/*', (req, res, next) => {
+    if (req.url.includes('account')) {
+        next();
+    } else {
+        if (req.session.isLogin) {
+            next()
+        } else {
+            res.send('<script>alert("你还未登录");location.href="/account/login.html"</script>');
+        }
+    }
+});
+
+
 //需要先调用body-parser
 app.use(bodyParser.urlencoded({
     extended: false
